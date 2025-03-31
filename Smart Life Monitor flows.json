@@ -1,0 +1,363 @@
+[
+    {
+        "id": "c5c4abba5d6b3cca",
+        "type": "tab",
+        "label": "Flow 3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "025047592c9e7b7a",
+        "type": "serial in",
+        "z": "c5c4abba5d6b3cca",
+        "name": "",
+        "serial": "7e03b52640d94def",
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "45b7ae8fcf451cb5"
+            ]
+        ]
+    },
+    {
+        "id": "45b7ae8fcf451cb5",
+        "type": "json",
+        "z": "c5c4abba5d6b3cca",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 310,
+        "y": 240,
+        "wires": [
+            [
+                "491820adfd3176a2",
+                "4098196bde2f26e2"
+            ]
+        ]
+    },
+    {
+        "id": "491820adfd3176a2",
+        "type": "function",
+        "z": "c5c4abba5d6b3cca",
+        "name": "function 2",
+        "func": "// Ensure msg.payload contains valid data\nif (!msg.payload || typeof msg.payload !== \"object\") {\n    node.error(\"Invalid payload format\", msg);\n    return null;\n}\n\n// Add timestamp for logging\nmsg.payload.timestamp = new Date().toISOString();\n\n// Structure data for Firebase storage\nlet firebaseData = {\n    timestamp: msg.payload.timestamp,\n    sensors: {\n        distance: msg.payload.Distance || 0,  // Default to 0 if missing\n        breath_count: msg.payload.Breath_Count || 0,\n        breathing_rate: msg.payload.breathing_rate || 0,\n        motion_detected: msg.payload.Motion_Detected || 0  // Include motion data\n    }\n};\n\n// Set HTTP headers\nmsg.headers = { \"Content-Type\": \"application/json\" };\n\n// Prepare messages for UI Gauges\nlet msgDistance = { payload: firebaseData.sensors.distance };\nlet msgBreathCount = { payload: firebaseData.sensors.breath_count };\nlet msgBreathingRate = { payload: firebaseData.sensors.breathing_rate };\nlet msgMotion = { payload: firebaseData.sensors.motion_detected };\n\n// Prepare Firebase message\nlet msgFirebase = {\n    payload: JSON.stringify(firebaseData),  // Ensure proper JSON format\n    headers: msg.headers\n};\n\n// Return data for:\n// 1️⃣ Distance Gauge, 2️⃣ Breath Count Gauge, 3️⃣ Breathing Rate Gauge, 4️⃣ Motion Detection, 5️⃣ Firebase  \nreturn [msgDistance, msgBreathCount, msgBreathingRate, msgMotion, msgFirebase];\n",
+        "outputs": 5,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 300,
+        "wires": [
+            [
+                "aba3eb9d0396fc1b",
+                "590d2c2320a75a76"
+            ],
+            [
+                "b4ce7ad1c3d141c4",
+                "b9ab122f8399eb14"
+            ],
+            [
+                "753a8645b9e16ad2",
+                "4084e89e3cdd0032"
+            ],
+            [
+                "78fa784d142bbf70",
+                "aa96e9bbecda39cf"
+            ],
+            [
+                "bc32674a206ef7ca"
+            ]
+        ]
+    },
+    {
+        "id": "590d2c2320a75a76",
+        "type": "ui_gauge",
+        "z": "c5c4abba5d6b3cca",
+        "name": "",
+        "group": "92478e22db5247bb",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Distance(cm)",
+        "label": "units",
+        "format": "{{msg.payload}}",
+        "min": 0,
+        "max": "50",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 870,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "b4ce7ad1c3d141c4",
+        "type": "ui_gauge",
+        "z": "c5c4abba5d6b3cca",
+        "name": "",
+        "group": "92478e22db5247bb",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "BreathCount",
+        "label": "units",
+        "format": "{{msg.payload}}",
+        "min": 0,
+        "max": "30",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 870,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "753a8645b9e16ad2",
+        "type": "ui_gauge",
+        "z": "c5c4abba5d6b3cca",
+        "name": "",
+        "group": "92478e22db5247bb",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "BreathingRate(BPM)",
+        "label": "units",
+        "format": "{{msg.payload}}",
+        "min": 0,
+        "max": "30",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 900,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "4098196bde2f26e2",
+        "type": "debug",
+        "z": "c5c4abba5d6b3cca",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "aba3eb9d0396fc1b",
+        "type": "debug",
+        "z": "c5c4abba5d6b3cca",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "b9ab122f8399eb14",
+        "type": "debug",
+        "z": "c5c4abba5d6b3cca",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "4084e89e3cdd0032",
+        "type": "debug",
+        "z": "c5c4abba5d6b3cca",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "64b4d49efd060bec",
+        "type": "debug",
+        "z": "c5c4abba5d6b3cca",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "bc32674a206ef7ca",
+        "type": "json",
+        "z": "c5c4abba5d6b3cca",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 670,
+        "y": 420,
+        "wires": [
+            [
+                "64b4d49efd060bec",
+                "9d415728b8511beb"
+            ]
+        ]
+    },
+    {
+        "id": "9d415728b8511beb",
+        "type": "http request",
+        "z": "c5c4abba5d6b3cca",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://breathing-rate-default-rtdb.firebaseio.com/sensordata.json",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 870,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "78fa784d142bbf70",
+        "type": "ui_gauge",
+        "z": "c5c4abba5d6b3cca",
+        "name": "",
+        "group": "92478e22db5247bb",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "gauge",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 10,
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 450,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "aa96e9bbecda39cf",
+        "type": "debug",
+        "z": "c5c4abba5d6b3cca",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "7e03b52640d94def",
+        "type": "serial-port",
+        "name": "Sensor Data",
+        "serialport": "COM3",
+        "serialbaud": "9600",
+        "databits": 8,
+        "parity": "none",
+        "stopbits": 1,
+        "waitfor": "",
+        "dtr": "none",
+        "rts": "none",
+        "cts": "none",
+        "dsr": "none",
+        "newline": "\\n",
+        "bin": "false",
+        "out": "char",
+        "addchar": "String",
+        "responsetimeout": 10000
+    },
+    {
+        "id": "92478e22db5247bb",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "ec16020eeb32f925",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "ec16020eeb32f925",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
